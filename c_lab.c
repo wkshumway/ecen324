@@ -1,3 +1,15 @@
+/***********************************************************************
+ * Program:
+ *    Lab C_lab, ECEN 324 Learning C Lab
+ *    Brother Jones, ECEN 324
+ * Author:
+ *    Wellesley Shumway
+ * Summary:
+ *    Demonstrates various ways to print things in different formats,
+ *    and in addition demonstrates how to do simple tasks in C like
+ *    constants, loops, points, memory allocation/deletion.
+ ************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #define PI 3.1415926
