@@ -52,7 +52,8 @@ int main() {
   printf("\tOct   Dec   Hex   Char\n");
   printf("\t----------------------\n");
 
-  for (int i = 'a'; i <= 'z'; i++) {
+  int i;
+  for (i = 'a'; i <= 'z'; i++) {
     printf("\t%-5o %-5d %x %4c\n", i, i, i, i);
   }
 
