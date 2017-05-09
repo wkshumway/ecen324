@@ -1,9 +1,13 @@
 Computer Systems - Terms
 Chapter  6
 * Pg. 580
-Memory system
-Cache memories
-Locality
+** Memory system
+** Cache memories
+At the hardware level, the
+principle of locality allows computer designers to speed up main memory accesses
+by introducing small fast memories known as cache memories that hold blocks of
+the most recently referenced instructions and data items
+** Locality
 * 6.1.1 Random-Access Memory
 ** Random access memory (RAM)
 ** Static RAM (SRAM)
@@ -190,7 +194,6 @@ Disks are constructed from platters. Each platter consists of two sides, or surf
 that are coated with magnetic recording material. A disk will typically contain one or more of
 these platters encased in a sealed container.
 
-
 ** Surface
 Disks are constructed from platters. Each platter consists of two sides, or surfaces,
 that are coated with magnetic recording material
@@ -228,7 +231,6 @@ technology factors:
 1-inch segment of the radius extending from the center of the platter.
 . Areal density (bits/in2): The product of the recording density and the track
 density.
-
 
 ** Track density
 (tracks/in): The number of tracks that can be squeezed into a
@@ -299,33 +301,152 @@ A graphics card (or adapter) contains hardware and software logic that is
 responsible for painting the pixels on the display monitor on behalf of the
 CPU.
 
-* mark
 ** I/O bus
-I/O port
-Direct memory access (DMA)
-DMA transfer
-6.1.3 Solid State Disks
-SSD
-Flash translation layer
-Wear-leveling
-6.1.4 Storage Technology Trends
-Storage Technologies have different
-price/performance trade-offs
-Price and performance properties
-changing at different rates
-Gap between DRAM, disk and CPU
-speeds
-6.2 Locality
-Locality
-Temporal locality
-Spatial locality
-Multi-core processors
-6.2.1 Locality References of Program
-Data
-Sequentially reference patterns (or
-Stride-1 reference pattern)
-Strike-k reference patterns
-Row-major order
+Input/output (I/O) devices such as graphics cards, monitors, mice, keyboards,
+and disks are connected to the CPU and main memory using an I/O bus such as
+Intel’s Peripheral Component Interconnect (PCI) bus. Unlike the system bus and
+memory buses, which are CPU-specific, I/O buses such as PCI are designed to be
+independent of the underlying CPU. For example, PCs and Macs both incorporate
+the PCI bus
+
+** I/O port
+The CPU issues commands to I/O devices using a technique called memorymapped I/O
+(Figure 6.12(a)). In a system with memory-mapped I/O, a block of addresses in
+the address space is reserved for communicating with I/O devices.Each of these
+addresses is known as an I/O port. Each device is associated with (or mapped to)
+one or more ports when it is attached to the bus...
+
+** Direct memory access (DMA) v
+** DMA transfer
+...As a simple example, suppose that the disk controller is mapped to port 0xa0.
+Then the CPU might initiate a disk read by executing three store instructions to
+address 0xa0: The first of these instructions sends a command word that tells the
+disk to initiate a read, along with other parameters such as whether to interrupt
+the CPU when the read is finished. (We will discuss interrupts in Section 8.1.)
+The second instruction indicates the logical block number that should be read.
+The third instruction indicates the main memory address where the contents of
+the disk sector should be stored.
+After it issues the request, the CPU will typically do other work while the
+disk is performing the read. Recall that a 1 GHz processor with a 1 ns clock cycle
+can potentially execute 16 million instructions in the 16 ms it takes to read the
+disk. Simply waiting and doing nothing while the transfer is taking place would be
+enormously wasteful.
+After the disk controller receives the read command from the CPU, it translates
+the logical block number to a sector address, reads the contents of the sector,
+and transfers the contents directly to main memory, without any intervention from
+the CPU (Figure 6.12(b)). This process, whereby a device performs a read or write
+bus transaction on its own, without any involvement of theCPU, is known as direct
+memory access (DMA). The transfer of data is known as a DMA transfer.
+* 6.1.3 Solid State Disks
+** SSD
+A solid state disk (SSD) is a storage technology, based on flash memory (Section
+6.1.1), that in some situations is an attractive alternative to the conventional
+rotating disk.
+SSDs have different performance characteristics than rotating disks.As shown
+in Figure 6.16, sequential reads and writes (where the CPU accesses logical disk
+blocks in sequential order) have comparable performance, with sequential reading
+somewhat faster than sequential writing. However, when logical blocks are
+accessed in random order, writing is an order of magnitude slower than reading.
+The difference between random reading and writing performance is caused by
+a fundamental property of the underlying flash memory. As shown in Figure 6.15,
+a flash memory consists of a sequence of B blocks, where each block consists of P
+pages. Typically, pages are 512–4KB in size, and a block consists of 32–128 pages,
+with total block sizes ranging from 16 KB to 512 KB. Data is read and written
+in units of pages. A page can be written only after the entire block to which it
+belongs has been erased (typically this means that all bits in the block are set
+to 1). However, once a block is erased, each page in the block can be written once
+with no further erasing. A blocks wears out after roughly 100,000 repeated writes.
+Once a block wears out it can no longer be used.
+** Flash translation layer
+An SSD package consists of one or more flash memory chips, which replace the mechanical
+drive in a conventional rotating disk, and a flash translation layer, which
+is a hardware/firmware device that plays the same role as a disk controller, translating
+requests for logical blocks into accesses of the underlying physical device.
+** Wear-leveling
+Wear leveling logic in the flash
+translation layer attempts to maximize the lifetime of each block by spreading
+erasures evenly across all blocks, but the fundamental limit remains.
+* 6.1.4 Storage Technology Trends
+** Storage Technologies have different price/performance trade-offs
+Different storage technologies have different price and performance trade-offs.
+SRAM is somewhat faster than DRAM, andDRAMis much faster than disk. On
+the other hand, fast storage is always more expensive than slower storage. SRAM
+costs more per byte than DRAM. DRAM costs much more than disk. SSDs split
+the difference between DRAM and rotating disk.
+
+** Price and performance properties changing at different rates
+The price and performance properties of different storage technologies are
+changing at dramatically different rates. Figure 6.17 summarizes the price and
+performance properties of storage technologies since 1980, when the first PCs
+were introduced. The numbers were culled from back issues of trade magazines
+and the Web. Although they were collected in an informal survey, the numbers
+reveal some interesting trends.
+Since 1980, both the cost and performance of SRAM technology have improved
+at roughly the same rate. Access times have decreased by a factor of about
+200 and cost per megabyte by a factor of 300 (Figure 6.17(a)). However, the trends
+for DRAM and disk are much more dramatic and divergent. While the cost per
+megabyte ofDRAMhas decreased by a factor of 130,000 (more than five orders of
+magnitude!),DRAMaccess times have decreased by only a factor of 10 or so (Figure
+6.17(b)). Disk technology has followed the same trend as DRAM and in even
+more dramatic fashion. While the cost of a megabyte of disk storage has plummeted
+by a factor of more than 1,000,000 (more than six orders of magnitude!)
+since 1980, access times have improved much more slowly, by only a factor of 30
+or so (Figure 6.17(c)). These startling long-term trends highlight a basic truth of
+memory and disk technology: it is easier to increase density (and thereby reduce
+cost) than to decrease access time.
+
+** Gap between DRAM, disk and CPU speeds
+DRAMand disk performance are lagging behindCPUperformance.As we see
+in Figure 6.17(d), CPU cycle times improved by a factor of 2500 between 1980 and
+2010. If we look at the effective cycle time—which we define to be the cycle time of
+an individualCPU(processor) divided by the number of its processor cores—then
+the improvement between 1980 and 2010 is even greater, a factor of 10,000. The
+split in theCPUperformance curve around 2003 reflects the introduction of multicore
+processors (see aside on next page). After this split, cycle times of individual
+cores actually increased a bit before starting to decrease again, albeit at a slower
+rate than before.
+Note that while SRAM performance lags, it is roughly keeping up. However,
+the gap between DRAM and disk performance and CPU performance is actually
+widening. Until the advent of multi-core processors around 2003, this performance
+gap was a function of latency, with DRAM and disk access times increasing
+more slowly than the cycle time of an individual processor. However, with the
+introduction of multiple cores, this performance gap is increasingly a function of
+throughput, with multiple processor cores issuing requests to theDRAMand disk
+in parallel.
+ [[memoryimprovement.png]]
+* 6.2 Locality
+** Locality
+Well-written computer programs tend to exhibit good locality. That is, they tend
+to reference data items that are near other recently referenced data items, or
+that were recently referenced themselves. This tendency, known as the principle
+of locality, is an enduring concept that has enormous impact on the design and
+performance of hardware and software systems.
+
+** Temporal locality
+In a program with good temporal locality, a memory location
+that is referenced once is likely to be referenced again multiple times in the near
+future
+** Spatial locality
+In a program with good spatial locality, if a memory location is referenced
+once, then the program is likely to reference a nearby memory location in the near
+future.
+
+** Multi-core processors
+* 6.2.1 Locality References of Program Data
+** Sequentially reference patterns (or Stride-1 reference pattern)
+A function such as sumvec that visits each element of a vector sequentially
+is said to have a stride-1 reference pattern (with respect to the element size).
+We will sometimes refer to stride-1 reference patterns as sequential reference
+patterns.
+** Strike-k reference patterns
+Visiting every kth element of a contiguous vector is called a stride-k
+reference pattern
+** Row-major order
+The doubly nested loop reads the
+elements of the array in row-major order.That is, the inner loop reads the elements
+of the first row, then the second row, and so on. The sumarrayrows function enjoys
+good spatial locality because it references the array in the same row-major order
+that the array is stored
 
 
 
@@ -333,8 +454,8 @@ Row-major order
 
 
 
-
-6.3 The Memory Hierarchy
+* Mostly Done Through Here
+ 6.3 The Memory Hierarchy
 Storage technology
 Memory hierarchy
 6.3.1 Caching in the Memory
