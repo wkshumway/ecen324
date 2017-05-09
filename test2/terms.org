@@ -1,0 +1,629 @@
+Computer Systems - Terms
+Chapter  6
+* Pg. 580
+** Memory system
+** Cache memories
+At the hardware level, the
+principle of locality allows computer designers to speed up main memory accesses
+by introducing small fast memories known as cache memories that hold blocks of
+the most recently referenced instructions and data items
+** Locality
+* 6.1.1 Random-Access Memory
+** Random access memory (RAM)
+** Static RAM (SRAM)
+SRAM is persistent as long as power is applied. Unlike DRAM, no refresh is
+necessary. SRAM can be accessed faster than DRAM. SRAM is not sensitive to
+disturbances such as light and electrical noise. The trade-off is that SRAM cells
+use more transistors than DRAM cells, and thus have lower densities, are more
+expensive, and consume more power.
+
+** Bistable
+** Dynamic RAM (DRAM)
+DRAM stores each bit as charge on a capacitor. This capacitor is very small—
+typically around 30 femtofarads, that is, 30 × 10−15 farads. Recall, however, that
+a farad is a very large unit of measure. DRAM storage can be made very dense—
+each cell consists of a capacitor and a single access transistor. Unlike SRAM,
+however, a DRAM memory cell is very sensitive to any disturbance. When the
+capacitor voltage is disturbed, it will never recover. Exposure to light rays will
+cause the capacitor voltages to change. In fact, the sensors in digital cameras and
+camcorders are essentially arrays of DRAM cells.
+Various sources of leakage current cause a DRAM cell to lose its charge
+within a time period of around 10 to 100 milliseconds. Fortunately, for computers
+operating with clock cycle times measured in nanoseconds, this retention time is
+quite long. The memory system must periodically refresh every bit of memory by
+reading it out and then rewriting it. Some systems also use error-correcting codes,
+where the computer words are encoded a few more bits (e.g., a 32-bit word might
+be encoded using 38 bits), such that circuitry can detect and correct any single
+erroneous bit within a word.
+The cells (bits) in a DRAM chip are partitioned into d supercells, each consisting
+of w DRAM cells. A d × w DRAM stores a total of dw bits of information. The
+supercells are organized as a rectangular array with r rows and c columns, where
+rc = d. Each supercell has an address of the form (i, j ), where i denotes the row,
+and j denotes the column.
+For example, Figure 6.3 shows the organization of a 16 × 8 DRAM chip with
+d = 16 supercells, w = 8 bits per supercell, r = 4 rows, and c = 4 columns. The
+shaded box denotes the supercell at address (2, 1). Information flows in and out
+of the chip via external connectors called pins. Each pin carries a 1-bit signal.
+Figure 6.3 shows two of these sets of pins: eight data pins that can transfer 1 byte
+in or out of the chip, and two addr pins that carry two-bit row and column supercell
+addresses. Other pins that carry control information are not shown.
+
+Each DRAM chip is connected to some circuitry, known as the memory
+controller, that can transfer w bits at a time to and from eachDRAMchip. To read
+the contents of supercell (i, j ), the memory controller sends the row address i to
+the DRAM, followed by the column address j . The DRAM responds by sending
+the contents of supercell (i, j ) back to the controller. The row address i is called a
+RAS (Row Access Strobe) request. The column address j is called a CAS (Column
+Access Strobe) request. Notice that the RAS and CAS requests share the same
+DRAM address pins.
+For example, to read supercell (2, 1) from the 16 × 8DRAMin Figure 6.3, the
+memory controller sends row address 2, as shown in Figure 6.4(a). The DRAM
+responds by copying the entire contents of row 2 into an internal row buffer. Next,
+the memory controller sends column address 1, as shown in Figure 6.4(b). The
+DRAM responds by copying the 8 bits in supercell (2, 1) from the row buffer and
+sending them to the memory controller.
+One reason circuit designers organize DRAMs as two-dimensional arrays
+instead of linear arrays is to reduce the number of address pins on the chip. For
+example, if our example 128-bit DRAM were organized as a linear array of 16
+supercells with addresses 0 to 15, then the chip would need four address pins
+instead of two. The disadvantage of the two-dimensional array organization is
+that addresses must be sent in two distinct steps, which increases the access time.
+Memory Modules
+DRAM chips are packaged in memory modules that plug into expansion slots
+on the main system board (motherboard). Common packages include the 168-
+pin dual inline memory module (DIMM), which transfers data to and from the
+memory controller in 64-bit chunks, and the 72-pin single inline memory module
+(SIMM), which transfers data in 32-bit chunks.
+Figure 6.5 shows the basic idea of a memory module. The example module
+stores a total of 64 MB (megabytes) using eight 64-Mbit 8M × 8 DRAM chips,
+numbered 0 to 7. Each supercell stores 1 byte of main memory, and each 64-
+bit doubleword1 at byte address A in main memory is represented by the eight
+supercells whose corresponding supercell address is (i, j ). In the example in
+Figure 6.5, DRAM 0 stores the first (lower-order) byte, DRAM 1 stores the next
+byte, and so on.
+To retrieve a 64-bit doubleword at memory address A, the memory controller
+converts A to a supercell address (i, j ) and sends it to the memory module, which
+then broadcasts i and j to each DRAM. In response, each DRAM outputs the 8-
+bit contents of its (i, j ) supercell. Circuitry in the module collects these outputs and
+forms them into a 64-bit doubleword, which it returns to the memory controller.
+Main memory can be aggregated by connecting multiple memory modules to
+the memory controller. In this case, when the controller receives an address A, the
+controller selects the module k that contains A, converts A to its (i, j ) form, and
+sends (i, j ) to module k.
+
+
+** Memory controller
+** Main memory
+** Volatile
+** Nonvolatile
+Nonvolatile memories, on the other hand, retain their
+information even when they are powered off. There are a variety of nonvolatile
+memories. For historical reasons, they are referred to collectively as read-only
+memories (ROMs), even though some types of ROMs can be written to as well as
+read
+
+** Read-only memories (ROM)
+ROMs are distinguished by the number of times they can be reprogrammed
+(written to) and by the mechanism for reprogramming them.
+
+** Programmable read-only memory (PROM)
+A programmable ROM (PROM) can be programmed exactly once. PROMs
+include a sort of fuse with each memory cell that can be blown once by zapping it
+with a high current.
+
+** Erasable PROM (EPROM)
+Anerasable programmableROM(EPROM)has a transparent quartz window
+that permits light to reach the storage cells. The EPROMcells are cleared to zeros
+by shining ultraviolet light through the window. Programming an EPROMis done
+by using a special device to write ones into the EPROM. An EPROM can be
+erased and reprogrammed on the order of 1000 times
+
+** Electrically eras
+able PROM (EEPROM)
+An electrically erasable
+PROM (EEPROM) is akin to an EPROM, but does not require a physically
+separate programming device, and thus can be reprogrammed in-place on printed
+circuit cards.AnEEPROMcan be reprogrammed on the order of 105 times before
+it wears out.
+
+** Flash memory
+a type of nonvolatile memory, based on EEPROMs, that
+has become an important storage technology. Flash memories are everywhere,
+providing fast and durable nonvolatile storage for a slew of electronic devices,
+including digital cameras, cell phones, music players, PDAs, and laptop, desktop,
+and server computer system
+
+** Solid state disk (SSD)
+** Firmware
+Programs stored in ROM devices are often referred to as firmware. When
+a computer system is powered up, it runs firmware stored in a ROM. Some
+systems provide a small set of primitive input and output functions in firmware, for
+example, a PC’s BIOS (basic input/output system) routines. Complicated devices
+such as graphics cards and disk drive controllers also rely on firmware to translate
+I/O (input/output) requests from the CPU.
+
+** Buses
+A bus is a collection of parallel wires that carry address, data, and control
+signals. Depending on the particular bus design, data and address signals can share
+the same set of wires, or they can use different sets. Also, more than two devices can
+share the same bus
+
+** Read transaction
+A read transaction transfers data from the main memory to the CPU.
+
+** Write transaction
+A write transaction transfers data from the CPU to the main memory.
+
+** Chipset - n/a
+** I/O bridge
+The I/O bridge translates the electrical signals of the system bus into the
+electrical signals of the memory bus. As we will see, the I/O bridge also connects
+the system bus and memory bus to an I/O bus that is shared by I/O devices such
+as disks and graphics cards
+
+** Memory bus
+a memory bus that connects the I/O
+bridge to the main memory
+Conversely, when the CPU performs a store instruction such as
+movl %eax,A
+ where the contents of register %eax  are written to address A , the CPU initiates
+a write transaction. Again, there are three basic steps. First, the CPU places the
+address on the system bus. The memory reads the address from the memory bus
+and waits for the data to arrive (Figure 6.8(a)). Next, theCPUcopies the data word
+in %eax  to the system bus (Figure 6.8(b)). Finally, the main memory reads the data
+word from the memory bus and stores the bits in the DRAM (Figure 6.8(c)).
+
+
+** Bus interface
+ Consider what happens when the CPU performs a load operation such as
+movl A,%eax
+ where the contents of address A  are loaded into register %eax . Circuitry on the
+CPU chip called the bus interface  initiates a read transaction on the bus
+
+* 6.1.2 Disk Storage
+** Disks
+workhorse storage devices that hold enormous amounts of data, on
+the order of hundreds to thousands of gigabytes, as opposed to the hundreds or
+thousands of megabytes in a RAM-based memory
+However, it takes on the order
+of milliseconds to read information from a disk, a hundred thousand times longer
+than from DRAM and a million times longer than from SRAM.
+
+** Platter
+Disks are constructed from platters. Each platter consists of two sides, or surfaces,
+that are coated with magnetic recording material. A disk will typically contain one or more of
+these platters encased in a sealed container.
+
+** Surface
+Disks are constructed from platters. Each platter consists of two sides, or surfaces,
+that are coated with magnetic recording material
+
+** Revolutions per minute (RPM) v
+** Spindle
+A rotating spindle in the center
+of the platter spins the platter at a fixed rotational rate, typically between 5400 and
+15,000 revolutions per minute (RPM). 
+Tracks
+Figure 6.9(a) shows the geometry of a typical disk surface. Each surface
+consists of a collection of concentric rings called tracks. Each track is partitioned
+into a collection of sectors
+
+** Disk drive
+A disk consists of one or more platters stacked on top of each other and
+encased in a sealed package, as shown in Figure 6.9(b). The entire assembly is
+often referred to as a disk drive, although we will usually refer to it as simply a
+disk
+
+** Cylinder
+Disk manufacturers describe the geometry of multiple-platter drives in terms
+of cylinders, where a cylinder is the collection of tracks on all the surfaces that are
+equidistant from the center of the spindle. For example, if a drive has three platters
+and six surfaces, and the tracks on each surface are numbered consistently, then
+cylinder k is the collection of the six instances of track k.
+
+** Capacity
+The maximum number of bits that can be recorded by a disk is known as its maximum
+capacity, or simply capacity. Disk capacity is determined by the following
+technology factors:
+. Recording density (bits/in): The number of bits that can be squeezed into a
+1-inch segment of a track.
+. Track density (tracks/in): The number of tracks that can be squeezed into a
+1-inch segment of the radius extending from the center of the platter.
+. Areal density (bits/in2): The product of the recording density and the track
+density.
+
+** Track density
+(tracks/in): The number of tracks that can be squeezed into a
+1-inch segment of the radius extending from the center of the platter.
+
+** Gigabyte
+1GB= 109 bytes.
+
+** Multiple zone recording v
+** Recording zones
+However, as areal densities increased, the gaps between sectors
+(where no data bits were stored) became unacceptably large. Thus, modern
+high-capacity disks use a technique known as multiple zone recording, where the
+set of cylinders is partitioned into disjoint subsets known as recording zones. Each
+zone consists of a contiguous collection of cylinders. Each track in each cylinder in
+a zone has the same number of sectors, which is determined by the number of sectors
+that can be packed into the innermost track of the zone
+
+** Disk controller
+A small
+hardware/firmware device in the disk package, called the disk controller, maintains
+the mapping between logical block numbers and actual (physical) disk sectors.
+
+** Seek (seek time)
+By moving
+the arm back and forth along its radial axis, the drive can position the head over
+any track on the surface. This mechanical motion is known as a seek
+To read the contents of some target sector, the arm first positions
+the head over the track that contains the target sector. The time required to
+move the arm is called the seek time. The seek time, Tseek, depends on the
+previous position of the head and the speed that the arm moves across the
+surface. The average seek time in modern drives, Tavg seek, measured by taking
+the mean of several thousand seeks to random sectors, is typically on the order
+of 3 to 9 ms. The maximum time for a single seek, Tmax seek, can be as high as
+20 ms.
+
+Rotational delay / rotational latency v
+Transfer time
+
+** Logical block
+As we have seen, modern disks have complex geometries, with multiple surfaces
+and different recording zones on those surfaces. To hide this complexity from
+the operating system, modern disks present a simpler view of their geometry as
+a sequence of B sector-sized logical blocks, numbered 0, 1, . . . , B − 1.
+
+** USB / SCSI / SATA
+A Universal Serial Bus (USB) controller is a conduit for devices attached to
+a USB bus, which is a wildly popular standard for connecting a variety of
+peripheral I/O devices, including keyboards, mice, modems, digital cameras,
+game controllers, printers, external disk drives, and solid state disks. USB 2.0
+buses have a maximum bandwidth of 60 MB/s.USB3.0 buses have a maximum
+bandwidth of 600 MB/s.
+A host bus adapter that connects one or more disks to the I/O bus using
+a communication protocol defined by a particular host bus interface. The
+two most popular such interfaces for disks are SCSI (pronounced “scuzzy”)
+and SATA (pronounced “sat-uh”). SCSI disks are typically faster and more
+expensive than SATA drives. A SCSI host bus adapter (often called a SCSI
+controller) can support multiple disk drives, as opposed to SATA adapters,
+which can only support one drive.
+
+** Network adapter
+Additional devices such as network adapters can be attached to the I/O bus by
+plugging the adapter into empty expansion slots on the motherboard that provide
+a direct electrical connection to the bus.
+
+** Graphics card (or adapter)
+A graphics card (or adapter) contains hardware and software logic that is
+responsible for painting the pixels on the display monitor on behalf of the
+CPU.
+
+** I/O bus
+Input/output (I/O) devices such as graphics cards, monitors, mice, keyboards,
+and disks are connected to the CPU and main memory using an I/O bus such as
+Intel’s Peripheral Component Interconnect (PCI) bus. Unlike the system bus and
+memory buses, which are CPU-specific, I/O buses such as PCI are designed to be
+independent of the underlying CPU. For example, PCs and Macs both incorporate
+the PCI bus
+
+** I/O port
+The CPU issues commands to I/O devices using a technique called memorymapped I/O
+(Figure 6.12(a)). In a system with memory-mapped I/O, a block of addresses in
+the address space is reserved for communicating with I/O devices.Each of these
+addresses is known as an I/O port. Each device is associated with (or mapped to)
+one or more ports when it is attached to the bus...
+
+** Direct memory access (DMA) v
+** DMA transfer
+...As a simple example, suppose that the disk controller is mapped to port 0xa0.
+Then the CPU might initiate a disk read by executing three store instructions to
+address 0xa0: The first of these instructions sends a command word that tells the
+disk to initiate a read, along with other parameters such as whether to interrupt
+the CPU when the read is finished. (We will discuss interrupts in Section 8.1.)
+The second instruction indicates the logical block number that should be read.
+The third instruction indicates the main memory address where the contents of
+the disk sector should be stored.
+After it issues the request, the CPU will typically do other work while the
+disk is performing the read. Recall that a 1 GHz processor with a 1 ns clock cycle
+can potentially execute 16 million instructions in the 16 ms it takes to read the
+disk. Simply waiting and doing nothing while the transfer is taking place would be
+enormously wasteful.
+After the disk controller receives the read command from the CPU, it translates
+the logical block number to a sector address, reads the contents of the sector,
+and transfers the contents directly to main memory, without any intervention from
+the CPU (Figure 6.12(b)). This process, whereby a device performs a read or write
+bus transaction on its own, without any involvement of theCPU, is known as direct
+memory access (DMA). The transfer of data is known as a DMA transfer.
+* 6.1.3 Solid State Disks
+** SSD
+A solid state disk (SSD) is a storage technology, based on flash memory (Section
+6.1.1), that in some situations is an attractive alternative to the conventional
+rotating disk.
+SSDs have different performance characteristics than rotating disks.As shown
+in Figure 6.16, sequential reads and writes (where the CPU accesses logical disk
+blocks in sequential order) have comparable performance, with sequential reading
+somewhat faster than sequential writing. However, when logical blocks are
+accessed in random order, writing is an order of magnitude slower than reading.
+The difference between random reading and writing performance is caused by
+a fundamental property of the underlying flash memory. As shown in Figure 6.15,
+a flash memory consists of a sequence of B blocks, where each block consists of P
+pages. Typically, pages are 512–4KB in size, and a block consists of 32–128 pages,
+with total block sizes ranging from 16 KB to 512 KB. Data is read and written
+in units of pages. A page can be written only after the entire block to which it
+belongs has been erased (typically this means that all bits in the block are set
+to 1). However, once a block is erased, each page in the block can be written once
+with no further erasing. A blocks wears out after roughly 100,000 repeated writes.
+Once a block wears out it can no longer be used.
+** Flash translation layer
+An SSD package consists of one or more flash memory chips, which replace the mechanical
+drive in a conventional rotating disk, and a flash translation layer, which
+is a hardware/firmware device that plays the same role as a disk controller, translating
+requests for logical blocks into accesses of the underlying physical device.
+** Wear-leveling
+Wear leveling logic in the flash
+translation layer attempts to maximize the lifetime of each block by spreading
+erasures evenly across all blocks, but the fundamental limit remains.
+* 6.1.4 Storage Technology Trends
+** Storage Technologies have different price/performance trade-offs
+Different storage technologies have different price and performance trade-offs.
+SRAM is somewhat faster than DRAM, andDRAMis much faster than disk. On
+the other hand, fast storage is always more expensive than slower storage. SRAM
+costs more per byte than DRAM. DRAM costs much more than disk. SSDs split
+the difference between DRAM and rotating disk.
+
+** Price and performance properties changing at different rates
+The price and performance properties of different storage technologies are
+changing at dramatically different rates. Figure 6.17 summarizes the price and
+performance properties of storage technologies since 1980, when the first PCs
+were introduced. The numbers were culled from back issues of trade magazines
+and the Web. Although they were collected in an informal survey, the numbers
+reveal some interesting trends.
+Since 1980, both the cost and performance of SRAM technology have improved
+at roughly the same rate. Access times have decreased by a factor of about
+200 and cost per megabyte by a factor of 300 (Figure 6.17(a)). However, the trends
+for DRAM and disk are much more dramatic and divergent. While the cost per
+megabyte ofDRAMhas decreased by a factor of 130,000 (more than five orders of
+magnitude!),DRAMaccess times have decreased by only a factor of 10 or so (Figure
+6.17(b)). Disk technology has followed the same trend as DRAM and in even
+more dramatic fashion. While the cost of a megabyte of disk storage has plummeted
+by a factor of more than 1,000,000 (more than six orders of magnitude!)
+since 1980, access times have improved much more slowly, by only a factor of 30
+or so (Figure 6.17(c)). These startling long-term trends highlight a basic truth of
+memory and disk technology: it is easier to increase density (and thereby reduce
+cost) than to decrease access time.
+
+** Gap between DRAM, disk and CPU speeds
+DRAMand disk performance are lagging behindCPUperformance.As we see
+in Figure 6.17(d), CPU cycle times improved by a factor of 2500 between 1980 and
+2010. If we look at the effective cycle time—which we define to be the cycle time of
+an individualCPU(processor) divided by the number of its processor cores—then
+the improvement between 1980 and 2010 is even greater, a factor of 10,000. The
+split in theCPUperformance curve around 2003 reflects the introduction of multicore
+processors (see aside on next page). After this split, cycle times of individual
+cores actually increased a bit before starting to decrease again, albeit at a slower
+rate than before.
+Note that while SRAM performance lags, it is roughly keeping up. However,
+the gap between DRAM and disk performance and CPU performance is actually
+widening. Until the advent of multi-core processors around 2003, this performance
+gap was a function of latency, with DRAM and disk access times increasing
+more slowly than the cycle time of an individual processor. However, with the
+introduction of multiple cores, this performance gap is increasingly a function of
+throughput, with multiple processor cores issuing requests to theDRAMand disk
+in parallel.
+ [[memoryimprovement.png]]
+* 6.2 Locality
+** Locality
+Well-written computer programs tend to exhibit good locality. That is, they tend
+to reference data items that are near other recently referenced data items, or
+that were recently referenced themselves. This tendency, known as the principle
+of locality, is an enduring concept that has enormous impact on the design and
+performance of hardware and software systems.
+
+** Temporal locality
+In a program with good temporal locality, a memory location
+that is referenced once is likely to be referenced again multiple times in the near
+future
+** Spatial locality
+In a program with good spatial locality, if a memory location is referenced
+once, then the program is likely to reference a nearby memory location in the near
+future.
+
+** Multi-core processors
+* 6.2.1 Locality References of Program Data
+** Sequentially reference patterns (or Stride-1 reference pattern)
+A function such as sumvec that visits each element of a vector sequentially
+is said to have a stride-1 reference pattern (with respect to the element size).
+We will sometimes refer to stride-1 reference patterns as sequential reference
+patterns.
+** Strike-k reference patterns
+Visiting every kth element of a contiguous vector is called a stride-k
+reference pattern
+** Row-major order
+The doubly nested loop reads the
+elements of the array in row-major order.That is, the inner loop reads the elements
+of the first row, then the second row, and so on. The sumarrayrows function enjoys
+good spatial locality because it references the array in the same row-major order
+that the array is stored
+
+
+
+
+
+
+
+* Mostly Done Through Here
+ 6.3 The Memory Hierarchy
+Storage technology
+Memory hierarchy
+6.3.1 Caching in the Memory
+Hierarchy
+Cache/Caching
+Blocks
+Transfer units
+Cache hit
+Cache miss
+Victim block
+Cold cache
+Compulsory miss (cold miss)
+Warmed up
+Placement policy
+Conflict miss
+Working set
+Capacity miss
+6.4 Cache Memories
+L1 cache
+L2 cache
+L3 cache
+6.4.1 Generic Cache Memory
+Organization
+Cache set (set index bits)
+Cache line
+Cache block (block offset bits)
+Tag bits
+Set index bits
+6.4.2 Direct Mapped Caches
+Direct-mapped cache
+Set selection
+Line matching
+Word extraction
+Thrashing
+Index middle bits
+6.4.3 Set Associative Caches
+Set associative cache
+Associative memory
+6.4.4 Fully Associative Caches
+Fully associative cache
+6.4.5 Issues with Writes
+Write-through
+Write-back
+Write-allocate
+No-write-allocate
+6.4.6 Anatomy of a Real Cache
+Hierarchy
+i-cache
+d-cache
+Unified cache
+6.4.7 Performance Impact of Cache
+Parameters
+Miss rate
+Hit rate
+Hit time
+Miss penalty
+Cache friendly
+6.6.1 The Memory Mountain
+Read throughput / read bandwidth
+Memory mountain
+Ridges
+Slopes
+6.6.2 Rearranging Loops to increase
+Spatial Locality
+Computer Systems - Terms
+Chapter 8
+Exception
+Exception handler
+Kernel mode 
+User mode
+Interrupts 
+Traps
+Faults
+Aborts
+Interrupt handlers 
+Faulting instruction 
+System call 
+Divide error
+General protec
+tion fault
+Machine check 
+Synchronous vs. asynchronous
+Slides
+Polling
+Programmed I/O
+Interrupt-driven I/O
+DMA
+I/O processor
+ISR (interrupt service routine)
+Cache miss
+Victim block
+Cold cache
+Compulsory miss (cold miss)
+Warmed up
+Placement policy
+Conflict miss
+Working set
+Capacity miss
+6.4 Cache Memories
+L1 cache
+L2 cache
+L3 cache
+6.4.1 Generic Cache Memory
+Organization
+Cache set (set index bits)
+Cache line
+Cache block (block offset bits)
+Tag bits
+Set index bits
+6.4.2 Direct Mapped Caches
+Direct-mapped cache
+Set selection
+Line matching
+Word extraction
+Thrashing
+Index middle bits
+6.4.3 Set Associative Caches
+Set associative cache
+Associative memory
+6.4.4 Fully Associative Caches
+Fully associative cache
+6.4.5 Issues with Writes
+Write-through
+Write-back
+Write-allocate
+No-write-allocate
+6.4.6 Anatomy of a Real Cache
+Hierarchy
+i-cache
+d-cache
+Unified cache
+6.4.7 Performance Impact of Cache
+Parameters
+Miss rate
+Hit rate
+Hit time
+Miss penalty
+Cache friendly
+6.6.1 The Memory Mountain
+Read throughput / read bandwidth
+Memory mountain
+Ridges
+Slopes
+6.6.2 Rearranging Loops to increase
+Spatial Locality
+Computer Systems - Terms
+Chapter 8
+Exception
+Exception handler
+Kernel mode 
+User mode
+Interrupts 
+Traps
+Faults
+Aborts
+Interrupt handlers 
+Faulting instruction 
+System call 
+Divide error
+General protec
+tion fault
+Machine check 
+Synchronous vs. asynchronous
+Slides
+Polling
+Programmed I/O
+Interrupt-driven I/O
+DMA
+I/O processor
+ISR (interrupt service routine)
+
