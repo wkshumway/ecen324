@@ -1,5 +1,6 @@
 Computer Systems - Terms
-Chapter  6
+* Chapter  6
+This is all preparation for why we use caches.
 * Pg. 580
 ** Memory system
 ** Cache memories
@@ -91,10 +92,10 @@ the memory controller. In this case, when the controller receives an address A, 
 controller selects the module k that contains A, converts A to its (i, j ) form, and
 sends (i, j ) to module k.
 
-
 ** Memory controller
 ** Main memory
 ** Volatile
+Must have power to maintain their ones and zeroes.
 ** Nonvolatile
 Nonvolatile memories, on the other hand, retain their
 information even when they are powered off. There are a variety of nonvolatile
@@ -172,7 +173,6 @@ address on the system bus. The memory reads the address from the memory bus
 and waits for the data to arrive (Figure 6.8(a)). Next, theCPUcopies the data word
 in %eax  to the system bus (Figure 6.8(b)). Finally, the main memory reads the data
 word from the memory bus and stores the bits in the DRAM (Figure 6.8(c)).
-
 
 ** Bus interface
  Consider what happens when the CPU performs a load operation such as
@@ -430,6 +430,11 @@ future
 In a program with good spatial locality, if a memory location is referenced
 once, then the program is likely to reference a nearby memory location in the near
 future.
+*** Exploiting spatial locality.
+ Blocks usually contain multiple data objects. Because
+of spatial locality, we can expect that the cost of copying a block after a
+miss will be amortized by subsequent references to other objects within that
+block.
 
 ** Multi-core processors
 * 6.2.1 Locality References of Program Data
@@ -453,48 +458,226 @@ that the array is stored
 
 
 
+* 6.3 The Memory Hierarchy
+** Storage technology
+Different storage technologies have widely different access
+times. Faster technologies cost more per byte than slower ones and have
+less capacity. The gap between CPU and main memory speed is widening.
+** Memory hierarchy
+In general, the storage devices get slower, cheaper,
+and larger as we move from higher to lower levels. At the highest level (L0) are a
+small number of fast CPU registers that the CPU can access in a single clock cycle.
+Next are one or more small to moderate-sized SRAM-based cache memories that
+can be accessed in a few CPU clock cycles. These are followed by a large DRAMbased
+main memory that can be accessed in tens to hundreds of clock cycles. Next
+are slow but enormous local disks. Finally, some systems even include an additional
+level of disks on remote servers that can be accessed over a network. For
+example, distributed file systems such as the Andrew File System (AFS) or the
+Network File System (NFS) allow a program to access files that are stored on remote
+network-connected servers
+[[memhierarchy.png]]
+*** To summarize, memory hierarchies based on caching work because slower storage is cheaper than faster storage and because programs tend to exhibit locality:
+* 6.3.1 Caching in the Memory Hierarchy
+** Cache/Caching
+In general, a cache (pronounced “cash”) is a small, fast storage device that acts as
+a staging area for the data objects stored in a larger, slower device. The process of
+using a cache is known as caching (pronounced “cashing”).
+The central idea of a memory hierarchy is that for each k, the faster and smaller
+storage device at level k serves as a cache for the larger and slower storage device
+at level k + 1. In other words, each level in the hierarchy caches data objects from
+the next lower level. For example, the local disk serves as a cache for files (such
+as Web pages) retrieved from remote disks over the network, the main memory
+serves as a cache for data on the local disks, and so on, until we get to the smallest
+cache of all, the set of CPU registers.
+*** figure /Smaller, faster, more expensive device at level k caches a subset of the blocks from level k+1./
+** Blocks
+The
+storage at level k + 1 is partitioned into contiguous chunks of data objects called
+blocks. Each block has a unique address or name that distinguishes it from other
+blocks. Blocks can be either fixed-sized (the usual case) or variable-sized (e.g., the
+remote HTML files stored on Web servers).
+Similarly, the storage at level k is partitioned into a smaller set of blocks that
+are the same size as the blocks at level k + 1. At any point in time, the cache at
+level k contains copies of a subset of the blocks from level k + 1.
+** Transfer units
+Data is always copied back and forth between level k and level k + 1 in blocksized
+transfer units. It is important to realize that while the block size is fixed
+between any particular pair of adjacent levels in the hierarchy, other pairs of levels
+can have different block sizes. For example, in Figure 6.23, transfers between L1
+and L0 typically use one-word blocks. Transfers between L2 and L1 (and L3 and
+L2, and L4 and L3) typically use blocks of 8 to 16 words. And transfers between
+L5 and L4 use blocks with hundreds or thousands of bytes. In general, devices
+lower in the hierarchy (further from the CPU) have longer access times, and thus
+tend to use larger block sizes in order to amortize these longer access times.
+** Cache hit
+When a program needs a particular data object d from level k + 1, it first looks
+for d in one of the blocks currently stored at level k. If d happens to be cached
+at level k, then we have what is called a cache hit. The program reads d directly
+from level k, which by the nature of the memory hierarchy is faster than reading d
+from level k + 1. For example, a program with good temporal locality might read
+a data object from block 14, resulting in a cache hit from level k.
+** Cache miss
+If, on the other hand, the data object d is not cached at level k, then we have what
+is called a cache miss. When there is a miss, the cache at level k fetches the block
+containing d from the cache at level k + 1, possibly overwriting an existing block
+if the level k cache is already full.
+** Victim block
+This process of overwriting an existing block is known as replacing or evicting
+the block. The block that is evicted is sometimes referred to as a victim block.
+** Cold cache v
+** Compulsory miss (cold miss)v
+** Warmed up
+If
+the cache at level k is empty, then any access of any data object will miss. An
+empty cache is sometimes referred to as a cold cache, and misses of this kind are
+called compulsory misses or cold misses. Cold misses are important because they
+are often transient events that might not occur in steady state, after the cache has
+been warmed up by repeated memory accesses.
+** Placement policy
+Whenever there is a miss, the cache at level k must implement some placement
+policy that determines where to place the block it has retrieved from level k + 1.
+The most flexible placement policy is to allow any block from level k + 1 to be
+stored in any block at level k. For caches high in the memory hierarchy (close to
+the CPU) that are implemented in hardware and where speed is at a premium,
+this policy is usually too expensive to implement because randomly placed blocks
+are expensive to locate.
+Thus, hardware caches typically implement a more restricted placement policy
+that restricts a particular block at level k + 1 to a small subset (sometimes a
+singleton) of the blocks at level k. For example, in Figure 6.24, we might decide that
+a block i at level k + 1 must be placed in block (i mod 4) at level k. For example,
+blocks 0, 4, 8, and 12 at level k + 1 would map to block 0 at level k; blocks 1,
+5, 9, and 13 would map to block 1; and so on.
+** Conflict miss
+Restrictive placement policies of this kind lead to a type of miss known as
+a conflict miss, in which the cache is large enough to hold the referenced data
+objects, but because they map to the same cache block, the cache keeps missing.
+For example, in Figure 6.24, if the program requests block 0, then block 8, then
+block 0, then block 8, and so on, each of the references to these two blocks would
+miss in the cache at level k, even though this cache can hold a total of four blocks.
+** Working set v
+** Capacity miss
+Programs often run as a sequence of phases (e.g., loops) where each phase
+accesses some reasonably constant set of cache blocks. For example, a nested loop
+might access the elements of the same array over and over again. This set of blocks
+is called the working set of the phase. When the size of the working set exceeds
+the size of the cache, the cache will experience what are known as capacity misses.
+In other words, the cache is just too small to handle this particular working set.
+* 6.4 Cache Memories
+** L1 cache
+The memory hierarchies of early computer systems consisted of only three levels:
+CPU registers, main DRAM memory, and disk storage. However, because of the
+increasing gap between CPU and main memory, system designers were compelled
+to insert a smallSRAMcache memory, called an L1 cache (Level 1 cache) between
+the CPU register file and main memory, as shown in Figure 6.26. The L1 cache can
+be accessed nearly as fast as the registers, typically in 2 to 4 clock cycles.
+** L2 cache
+As the performance gap between the CPU and main memory continued
+to increase, system designers responded by inserting an additional larger cache,
+called an L2 cache, between the L1 cache and main memory, that can be accessed
+in about 10 clock cycles. Some
+** L3 cache
+Some modern systems include an additional even larger
+cache, called an L3 cache, which sits between the L2 cache and main memory
+in the memory hierarchy and can be accessed in 30 or 40 cycles.
+* 6.4.1 Generic Cache Memory Organization
 
-* Mostly Done Through Here
- 6.3 The Memory Hierarchy
-Storage technology
-Memory hierarchy
-6.3.1 Caching in the Memory
-Hierarchy
-Cache/Caching
-Blocks
-Transfer units
-Cache hit
-Cache miss
-Victim block
-Cold cache
-Compulsory miss (cold miss)
-Warmed up
-Placement policy
-Conflict miss
-Working set
-Capacity miss
-6.4 Cache Memories
-L1 cache
-L2 cache
-L3 cache
-6.4.1 Generic Cache Memory
-Organization
-Cache set (set index bits)
-Cache line
-Cache block (block offset bits)
-Tag bits
-Set index bits
-6.4.2 Direct Mapped Caches
-Direct-mapped cache
-Set selection
-Line matching
-Word extraction
-Thrashing
-Index middle bits
-6.4.3 Set Associative Caches
-Set associative cache
-Associative memory
-6.4.4 Fully Associative Caches
+** Cache set (set index bits)
+A cache is an array of sets. Each set contains one or more lines.
+** Cache line
+Each line
+contains a valid bit,
+some tag bits, and a
+block of data. (b) The
+cache organization
+induces a partition of
+the m address bits into
+t tag bits, s set index
+bits, and b block offset
+bits.
+** Cache block ((block offset bits)v)
+Each line consists of a data block of B = 2b bytes, a valid bit that indicates
+whether or not the line contains meaningful information, and t = m − (b + s) tag
+bits (a subset of the bits from the current block’s memory address) that uniquely
+identify the block stored in the cache line.
+** Tag bits v
+** Set index bits
+The parameters S and B induce a partitioning of the m address bits into the
+three fields shown in Figure 6.27(b). The s set index bits in A form an index into
+the array of S sets. The first set is set 0, the second set is set 1, and so on. When
+interpreted as an unsigned integer, the set index bits tell us which set the word
+must be stored in. Once we know which set the word must be contained in, the t
+tag bits in A tell us which line (if any) in the set contains the word. A line in the
+set contains the word if and only if the valid bit is set and the tag bits in the line
+match the tag bits in the address A. Once we have located the line identified by
+the tag in the set identified by the set index, then the b block offset bits give us the
+offset of the word in the B-byte data block.
+* 6.4.2 Direct Mapped Caches
+** Direct-mapped cache
+A cache with exactly one line per set (E = 1) is known as a direct-mapped
+cache
+** Set selection
+The process that a cache goes through of determining whether a request is a
+hit or a miss and then extracting the requested word consists of three steps: (1) set
+selection, (2) line matching, and (3) word extraction.
+In this step, the cache extracts the s set index bits from the middle of the address
+for w. These bits are interpreted as an unsigned integer that corresponds to a set
+number. In other words, if we think of the cache as a one-dimensional array of
+sets, then the set index bits form an index into this array. Figure 6.30 shows how
+set selection works for a direct-mapped cache.
+** Line matching^
+Now that we have selected some set i in the previous step, the next step is to
+determine if a copy of the word w is stored in one of the cache lines contained in
+set i. In a direct-mapped cache, this is easy and fast because there is exactly one
+line per set. A copy of w is contained in the line if and only if the valid bit is set
+and the tag in the cache line matches the tag in the address of w.
+Figure 6.31 shows how line matching works in a direct-mapped cache. In this
+example, there is exactly one cache line in the selected set. The valid bit for this
+line is set, so we know that the bits in the tag and block are meaningful. Since the
+tag bits in the cache line match the tag bits in the address, we know that a copy of
+the word we want is indeed stored in the line. In other words, we have a cache hit.
+On the other hand, if either the valid bit were not set or the tags did not match,
+then we would have had a cache miss.
+** Word extraction^
+Once we have a hit, we know that w is somewhere in the block. This last step
+determines where the desired word starts in the block. As shown in Figure 6.31,
+the block offset bits provide us with the offset of the first byte in the desired word.
+Similar to our view of a cache as an array of lines, we can think of a block as an
+array of bytes, and the byte offset as an index into that array. In the example, the
+block offset bits of 1002 indicate that the copy of w starts at byte 4 in the block.
+(We are assuming that words are 4 bytes long.)
+** Thrashing
+The term
+thrashing describes any situation where a cache is repeatedly loading and evicting
+the same sets of cache blocks.
+Luckily, thrashing is easy for programmers to fix once they recognize what is
+going on. One easy solution is to put B bytes of padding at the end of each array.
+For example, instead of defining x to be float x[8], we define it to be float
+x[12]. Assuming y starts immediately after x in memory, we have the following
+mapping of array elements to sets: With the padding at the end of x, x[i] and y[i] now map to different sets,
+which eliminates the thrashing conflict misses.
+** Index middle bits
+You may be wondering why caches use the middle bits for the set index instead of the high-order bits.
+There is a good reason why the middle bits are better. Figure 6.33 shows why. If the high-order bits are
+used as an index, then some contiguous memory blocks will map to the same cache set. For example, in
+the figure, the first four blocks map to the first cache set, the second four blocks map to the second set,
+and so on. If a program has good spatial locality and scans the elements of an array sequentially, then
+the cache can only hold a block-sized chunk of the array at any point in time. This is an inefficient use of
+the cache. Contrast this with middle-bit indexing, where adjacent blocks always map to different cache
+lines. In this case, the cache can hold an entire C-sized chunk of the array, where C is the cache size.
+* 6.4.3 Set Associative Caches
+** Set associative cache
+The problem with conflict misses in direct-mapped caches stems from the constraint
+that each set has exactly one line (or in our terminology, E = 1). A set
+associative cache relaxes this constraint so each set holds more than one cache
+line. A cache with 1<E <C/B is often called an E-way set associative cache.We
+will discuss the special case, where E = C/B, in the next section.
+** Associative memory
+An associative memory, on the other hand, is an array of (key, value) pairs that
+takes as input the key and returns a value from one of the (key, value) pairs that
+matches the input key. Thus, we can think of each set in a set associative cache as
+a small associative memory where the keys are the concatenation of the tag and
+valid bits, and the values are the contents of a block.
+* 6.4.4 Fully Associative Caches
 Fully associative cache
 6.4.5 Issues with Writes
 Write-through
@@ -627,3 +810,26 @@ DMA
 I/O processor
 ISR (interrupt service routine)
 
+* Chapter 8
+Exception
+Exception handler
+Kernel mode 
+User mode
+Interrupts 
+Traps
+Faults
+Aborts
+Interrupt handlers 
+Faulting instruction 
+System call 
+Divide error
+General protection fault
+Machine check 
+Synchronous vs. asynchronous
+* Slides
+Polling
+Programmed I/O
+Interrupt-driven I/O
+DMA
+I/O processor
+ISR (interrupt service routine)
