@@ -452,12 +452,7 @@ elements of the array in row-major order.That is, the inner loop reads the eleme
 of the first row, then the second row, and so on. The sumarrayrows function enjoys
 good spatial locality because it references the array in the same row-major order
 that the array is stored
-
-
-
-
-
-
+C and C++ garuntee that arrays are layed out in this way.
 * 6.3 The Memory Hierarchy
 ** Storage technology
 Different storage technologies have widely different access
@@ -529,7 +524,7 @@ the block. The block that is evicted is sometimes referred to as a victim block.
 ** Warmed up
 If
 the cache at level k is empty, then any access of any data object will miss. An
-empty cache is sometimes referred to as a cold cache, and misses of this kind are
+empty cache is sometimes referred to as a /cold cache/, and misses of this kind are
 called compulsory misses or cold misses. Cold misses are important because they
 are often transient events that might not occur in steady state, after the cache has
 been warmed up by repeated memory accesses.
@@ -580,7 +575,6 @@ Some modern systems include an additional even larger
 cache, called an L3 cache, which sits between the L2 cache and main memory
 in the memory hierarchy and can be accessed in 30 or 40 cycles.
 * 6.4.1 Generic Cache Memory Organization
-
 ** Cache set (set index bits)
 A cache is an array of sets. Each set contains one or more lines.
 ** Cache line
@@ -664,6 +658,9 @@ and so on. If a program has good spatial locality and scans the elements of an a
 the cache can only hold a block-sized chunk of the array at any point in time. This is an inefficient use of
 the cache. Contrast this with middle-bit indexing, where adjacent blocks always map to different cache
 lines. In this case, the cache can hold an entire C-sized chunk of the array, where C is the cache size.
+*** Using middle bits is to 
+prevent thrashing between numbers next to each other such as 0001 and 0010, which have the same high order bits.
+
 * 6.4.3 Set Associative Caches
 ** Set associative cache
 The problem with conflict misses in direct-mapped caches stems from the constraint
@@ -679,32 +676,59 @@ a small associative memory where the keys are the concatenation of the tag and
 valid bits, and the values are the contents of a block.
 * 6.4.4 Fully Associative Caches
 Fully associative cache
-6.4.5 Issues with Writes
+* 6.4.5 Issues with Writes
 Write-through
 Write-back
 Write-allocate
 No-write-allocate
-6.4.6 Anatomy of a Real Cache
+* 6.4.6 Anatomy of a Real Cache
 Hierarchy
 i-cache
 d-cache
 Unified cache
-6.4.7 Performance Impact of Cache
+* 6.4.7 Performance Impact of Cache
 Parameters
-Miss rate
-Hit rate
-Hit time
+** Miss rate
+Miss rate. The fraction of memory references during the execution of a program,
+or a part of a program, that miss. It is computed as #misses/#references.
+** Hit rate
+
+** Hit time
 Miss penalty
 Cache friendly
-6.6.1 The Memory Mountain
-Read throughput / read bandwidth
-Memory mountain
-Ridges
+* 6.6.1 The Memory Mountain
+** Read throughput / read bandwidth
+   The rate that a program reads data from the memory system is called the read
+throughput, or sometimes the read bandwidth. If a program reads n bytes over a
+period of s seconds, then the read throughput over that period is n/s, typically
+expressed in units of megabytes per second (MB/s).
+** Memory mountain
+If we call the run
+function repeatedly with different values of size and stride, then we can recover
+a fascinating two-dimensional function of read throughput versus temporal and
+spatial locality. This function is called a memory mountain
+Wise programmers try to structure their programs so that they run in
+the peaks instead of the valleys. The aim is to exploit temporal locality so that
+heavily used words are fetched from the L1 cache, and to exploit spatial locality
+so that as many words as possible are accessed from a single L1 cache line.
+** Ridges
+   Perpendicular
+to the size axis are four ridges that correspond to the regions of temporal locality
+where the working set fits entirely in the L1 cache, the L2 cache, the L3 cache, and
+main memory, respectively. Notice that there is an order of magnitude difference
+between the highest peak of the L1 ridge, where the CPU reads at a rate of over
+6 GB/s, and the lowest point of the main memory ridge, where the CPU reads at
+a rate of 600 MB/s.
 Slopes
-6.6.2 Rearranging Loops to increase
-Spatial Locality
-Computer Systems - Terms
-Chapter 8
+** 6.6.2 Rearranging Loops to increase Spatial Locality
+   Focus your attention on the inner loops, where the bulk of the computations
+and memory accesses occur.
+. Try to maximize the spatial locality in your programs by reading data objects
+sequentially, with stride 1, in the order they are stored in memory.
+. Try to maximize the temporal locality in your programs by using a data object
+as often as possible once it has been read from memory.
+*** see textbook examples
+* Chapter 8
 Exception
 Exception handler
 Kernel mode 
