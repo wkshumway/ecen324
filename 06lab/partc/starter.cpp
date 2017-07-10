@@ -3,7 +3,7 @@
 *    Lab CalendarOptimize, Optimizing a Calendar Program
 *    Brother Jones, ECEN 324
 * Author:
-*    Your Name
+*    Wellesley Shumway 
 * Summary:
 *    A summary of the optimizations that you did goes here.
 *    A portion of your grade is based on this summary.
@@ -70,24 +70,17 @@ using namespace std;
  ***********************************************************************/
 bool isLeapYear(int year)
 {
-   // No leap years before 1753
-
-   // What, are you Buck Rogers?
-
-   bool leap;
    // Not a leap year if not evenly divisible by 4
    if (year % 4 != 0)
      return false;//   else if (year % 4 == 0)
-   //  leap = true; // 2004, 2008, 2012, 2016, etc.
 
-   // Is a leap yar if not divisible by 100
-   else if (year % 100 != 0 && leap)
+  // Is a leap yar if not divisible by 100
+   else if (year % 100 != 0 )
      return true;
 
    // Is a leap year if on the quad century
-   else if (year % 400 != 0 && !leap)
+   else if (year % 400 != 0 )
      return false;
-
    else
      return false;
 }
@@ -101,24 +94,15 @@ int numDaysInMonth(int month, int year)
    int days;
    int monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-   if (isLeapYear(year))
-     return monthDays[month-1] + 1;
-   else
-     return monthDays[month-1];
-}
+if (year % 4 != 0)
+  return monthDays[month-1];
+else if (year % 100  != 0 )
+  return monthDays[month-1] + 1;
+else if (year % 400 != 0 )
+  return monthDays[month-1];
+else
+  return monthDays[month-1] + 1;
 
-
-/**********************************************************************
- * YOUR DESCRIPTION HERE
- ***********************************************************************/
-int numDaysInYear(int year)
-{
-   int days;
-   if (isLeapYear(year))
-      days = 366;
-   if (!isLeapYear(year))
-      days = 365;
-   return days;
 }
 
 
@@ -133,7 +117,7 @@ int computeOffset(int month, int year)
    // Add up the days associated with each year
    for (int cYear = yearSeed; cYear < year; cYear++)
    {
-      days += numDaysInYear(cYear);
+      days += (isLeapYear(year) ? 366 : 365);
    }
 
    // Add up the days associated with each month
@@ -150,40 +134,9 @@ int computeOffset(int month, int year)
  ***********************************************************************/
 int displayHeader(int month, int year, char *calendar, int pos)
 {
-   pos += sprintf(calendar + pos, "\n");
+   const char* months[12] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
-   // Write the month
-   if (month == 1)
-      pos += sprintf(calendar + pos, "%s", "January");
-   if (month == 2)
-      pos += sprintf(calendar + pos, "%s", "February");
-   if (month == 3)
-      pos += sprintf(calendar + pos, "%s", "March");
-   if (month == 4)
-      pos += sprintf(calendar + pos, "%s", "April");
-   if (month == 5)
-      pos += sprintf(calendar + pos, "%s", "May");
-   if (month == 6)
-      pos += sprintf(calendar + pos, "%s", "June");
-   if (month == 7)
-      pos += sprintf(calendar + pos, "%s", "July");
-   if (month == 8)
-      pos += sprintf(calendar + pos, "%s", "August");
-   if (month == 9)
-      pos += sprintf(calendar + pos, "%s", "September");
-   if (month == 10)
-      pos += sprintf(calendar + pos, "%s", "October");
-   if (month == 11)
-      pos += sprintf(calendar + pos, "%s", "November");
-   if (month == 12)
-      pos += sprintf(calendar + pos, "%s", "December");
-
-   // Write the year
-   pos += sprintf(calendar + pos, ", ");
-   pos += sprintf(calendar + pos, "%i", year);
-   pos += sprintf(calendar + pos, "\n");
-
-   return pos;
+   return pos += sprintf(calendar + pos, "\n%s, %i\n", months[month], year );
 }
 
 /********************************************************************
@@ -195,26 +148,15 @@ int displayTable(int numDays, int offset, char *calendar, int pos)
    // Special case offset==6. We don't want a blank first line
    if (offset == 6)
       offset = -1;
-
+//   const char* days[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
    // Display the header
-   for (int i = 0; i < 7; i++)
-   {
-      pos += sprintf(calendar + pos, "  ");
-      if (i == 0)
-         pos += sprintf(calendar + pos, "%s", "Su");
-      if (i == 1)
-         pos += sprintf(calendar + pos, "%s", "Mo");
-      if (i == 2)
-         pos += sprintf(calendar + pos, "%s", "Tu");
-      if (i == 3)
-         pos += sprintf(calendar + pos, "%s", "We");
-      if (i == 4)
-         pos += sprintf(calendar + pos, "%s", "Th");
-      if (i == 5)
-         pos += sprintf(calendar + pos, "%s", "Fr");
-      if (i == 6)
-         pos += sprintf(calendar + pos, "%s", "Sa");
-   }
+   pos += sprintf(calendar + pos, "%s", "Su");
+   pos += sprintf(calendar + pos, "%s", "Mo");
+   pos += sprintf(calendar + pos, "%s", "Tu");
+   pos += sprintf(calendar + pos, "%s", "We");
+   pos += sprintf(calendar + pos, "%s", "Th");
+   pos += sprintf(calendar + pos, "%s", "Fr");
+   pos += sprintf(calendar + pos, "%s", "Sa");
    pos += sprintf(calendar + pos, "\n");
 
    // Display the individual locations on the calendar grid
